@@ -3,7 +3,7 @@ import { Reservation, PrepItem, OrderAdd, HousekeepingNote, WhiteboardNote } fro
 
 // Simulate real-time updates by generating new data periodically
 export class KitchenSimulator {
-  private intervalId: NodeJS.Timeout | null = null
+  private intervalId: ReturnType<typeof setInterval> | null = null
   private listeners: Array<(data: any) => void> = []
 
   start() {
