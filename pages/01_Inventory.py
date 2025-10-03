@@ -12,7 +12,7 @@ import random
 
 # Page configuration
 st.set_page_config(
-    page_title="Inventory Dashboard",
+    page_title="Kitchen Command Center Dashboard",
     page_icon="📦",
     layout="wide"
 )
