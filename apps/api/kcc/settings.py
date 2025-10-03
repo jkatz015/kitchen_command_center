@@ -155,7 +155,10 @@ REST_FRAMEWORK = {
 
 # CORS configuration
 _cors_origins = [origin.strip() for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",") if origin.strip()]
-CORS_ALLOWED_ORIGINS = _cors_origins or ["http://localhost:3000"]
+CORS_ALLOWED_ORIGINS = _cors_origins or [
+    "http://localhost:3000",  # React app
+    "http://localhost:8501",  # Streamlit app
+]
 
 
 # Default primary key field type
