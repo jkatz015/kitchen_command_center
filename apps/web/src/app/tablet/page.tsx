@@ -1,12 +1,55 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { dummyPrepItems, dummyOrderAdds, dummyHousekeepingNotes, dummyWhiteboardNotes } from '@/data/dummyData'
 import { PrepItem, OrderAdd, HousekeepingNote, WhiteboardNote } from '@/types'
 import { getStatusColor, getPriorityColor, formatTimeAgo } from '@/utils/statusUtils'
+import { kitchenSimulator, generateStaffAssignments } from '@/utils/simulator'
 
 export default function Tablet() {
   const [isSaving, setIsSaving] = useState(false)
+  const [prepItems, setPrepItems] = useState<PrepItem[]>(dummyPrepItems)
+  const [orderAdds, setOrderAdds] = useState<OrderAdd[]>(dummyOrderAdds)
+  const [housekeepingNotes, setHousekeepingNotes] = useState<HousekeepingNote[]>(dummyHousekeepingNotes)
+  const [whiteboardNotes, setWhiteboardNotes] = useState<WhiteboardNote[]>(dummyWhiteboardNotes)
+  const [staffAssignments, setStaffAssignments] = useState(generateStaffAssignments())
+  const [lastUpdate, setLastUpdate] = useState(new Date())
+
+  useEffect(() => {
+    // Start the simulator
+    kitchenSimulator.start()
+
+    // Subscribe to simulator updates
+    const unsubscribe = kitchenSimulator.subscribe((update) => {
+      switch (update.type) {
+        case 'order-add':
+          setOrderAdds(prev => [update.data, ...prev])
+          break
+        case 'prep-update':
+          setPrepItems(prev => prev.map(item =>
+            item.name === update.data.item
+              ? { ...item, status: update.data.status }
+              : item
+          ))
+          break
+        case 'housekeeping-note':
+          setHousekeepingNotes(prev => [update.data, ...prev])
+          break
+      }
+      setLastUpdate(new Date())
+    })
+
+    // Update staff assignments every 2 minutes
+    const staffInterval = setInterval(() => {
+      setStaffAssignments(generateStaffAssignments())
+    }, 120000)
+
+    return () => {
+      kitchenSimulator.stop()
+      unsubscribe()
+      clearInterval(staffInterval)
+    }
+  }, [])
 
   const handleSaveSnapshot = async () => {
     setIsSaving(true)
@@ -33,10 +76,10 @@ export default function Tablet() {
               <span className="text-sm text-gray-600">Online</span>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="text-sm text-gray-600">
-              {new Date().toLocaleString()}
-            </div>
+                 <div className="flex items-center space-x-4">
+                   <div className="text-sm text-gray-600">
+                     {lastUpdate.toLocaleString()} • Live
+                   </div>
             <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
               Settings
             </button>
@@ -66,8 +109,8 @@ export default function Tablet() {
                 </div>
               </div>
               <div className="flex-1 bg-gray-50 rounded-lg p-4 overflow-y-auto">
-                <div className="space-y-4">
-                  {dummyWhiteboardNotes.map((note: WhiteboardNote) => (
+                     <div className="space-y-4">
+                       {whiteboardNotes.map((note: WhiteboardNote) => (
                     <div key={note.id} className={`border-l-4 p-4 rounded-lg ${getPriorityColor(note.priority)}`}>
                       <p className="text-lg font-semibold text-gray-900 mb-1">{note.title}</p>
                       <p className="text-base text-gray-700">{note.content}</p>
@@ -91,8 +134,8 @@ export default function Tablet() {
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto">
-                <div className="space-y-4">
-                  {dummyPrepItems.map((item: PrepItem) => (
+                     <div className="space-y-4">
+                       {prepItems.map((item: PrepItem) => (
                     <div key={item.id} className={`border-l-4 p-4 rounded-lg ${getPriorityColor(item.priority)}`}>
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
@@ -134,8 +177,8 @@ export default function Tablet() {
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto">
-                <div className="space-y-4">
-                  {dummyOrderAdds.map((order: OrderAdd) => (
+                     <div className="space-y-4">
+                       {orderAdds.map((order: OrderAdd) => (
                     <div key={order.id} className={`border-l-4 p-4 rounded-lg ${getPriorityColor(order.priority)}`}>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-lg font-semibold text-gray-900">Table {order.tableNumber}</span>
@@ -172,8 +215,8 @@ export default function Tablet() {
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto">
-                <div className="space-y-4">
-                  {dummyHousekeepingNotes.map((note: HousekeepingNote) => (
+                     <div className="space-y-4">
+                       {housekeepingNotes.map((note: HousekeepingNote) => (
                     <div key={note.id} className={`border-l-4 p-4 rounded-lg ${getPriorityColor(note.priority)}`}>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-lg font-semibold text-gray-900">
