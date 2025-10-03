@@ -1,4 +1,7 @@
-# Generated manually for initial models
+# This migration was generated manually rather than using `python manage.py makemigrations`.
+# Reason: [Provide a detailed explanation here, e.g., "Initial schema setup required custom field options not supported by Django's migration autogeneration."]
+# Please ensure that any future changes to models are reflected in migrations using the standard Django workflow.
+# Manual migrations can lead to inconsistencies; see Django documentation for best practices.
 from django.db import migrations, models
 
 
