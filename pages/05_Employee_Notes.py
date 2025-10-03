@@ -129,10 +129,10 @@ def display_task_overview(tasks):
     st.subheader("📊 Task Overview")
 
     total_tasks = len(tasks)
-    pending_tasks = len([t for t in tasks if t['status'] == 'pending'])
-    in_progress_tasks = len([t for t in tasks if t['status'] == 'in-progress'])
-    completed_tasks = len([t for t in tasks if t['status'] == 'completed'])
-    overdue_tasks = len([t for t in tasks if t['status'] != 'completed' and t['due_date'] < date.today()])
+    pending_tasks = len([t for t in tasks if t.get('status') == 'pending'])
+    in_progress_tasks = len([t for t in tasks if t.get('status') == 'in-progress'])
+    completed_tasks = len([t for t in tasks if t.get('status') == 'completed'])
+    overdue_tasks = len([t for t in tasks if t.get('status') != 'completed' and t.get('due_date', date.today()) < date.today()])
 
     col1, col2, col3, col4, col5 = st.columns(5)
 
@@ -178,7 +178,7 @@ def display_task_list(tasks, filter_status=None, filter_employee=None):
     # Apply filters
     filtered_tasks = tasks
     if filter_status and filter_status != "All":
-        filtered_tasks = [t for t in filtered_tasks if t['status'] == filter_status]
+        filtered_tasks = [t for t in filtered_tasks if t.get('status') == filter_status]
     if filter_employee and filter_employee != "All":
         filtered_tasks = [t for t in filtered_tasks if t['assigned_to'] == filter_employee]
 
@@ -194,7 +194,7 @@ def display_task_list(tasks, filter_status=None, filter_employee=None):
         priority_color = get_priority_color(task['priority'])
         priority_class = f"task-{task['priority']}"
 
-        if task['status'] == 'completed':
+        if task.get('status') == 'completed':
             priority_class += " task-completed"
 
         with st.container():
@@ -215,26 +215,26 @@ def display_task_list(tasks, filter_status=None, filter_employee=None):
                 st.markdown(f"**Created:** {task['created_date']}")
 
                 # Show overdue warning
-                if task['status'] != 'completed' and task['due_date'] < date.today():
+                if task.get('status') != 'completed' and task.get('due_date', date.today()) < date.today():
                     st.error("⚠️ Overdue!")
 
             with col3:
                 st.markdown(f'<span style="color: {priority_color}">{task["priority"].title()}</span>',
                            unsafe_allow_html=True)
-                st.markdown(f"**Status:** {task['status'].replace('-', ' ').title()}")
+                st.markdown(f"**Status:** {task.get('status', 'unknown').replace('-', ' ').title()}")
 
             with col4:
-                if task['status'] == 'pending':
+                if task.get('status') == 'pending':
                     if st.button(f"Start {task['id']}", key=f"start_{task['id']}"):
                         task['status'] = 'in-progress'
                         st.success(f"Started task: {task['title']}")
                         st.rerun()
-                elif task['status'] == 'in-progress':
+                elif task.get('status') == 'in-progress':
                     if st.button(f"Complete {task['id']}", key=f"complete_{task['id']}"):
                         task['status'] = 'completed'
                         st.success(f"Completed task: {task['title']}")
                         st.rerun()
-                elif task['status'] == 'completed':
+                elif task.get('status') == 'completed':
                     st.success("✅ Done")
 
 def display_task_filters(tasks, employees):
@@ -244,7 +244,7 @@ def display_task_filters(tasks, employees):
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        status_options = ["All"] + list(set(task['status'] for task in tasks))
+        status_options = ["All"] + list(set(task.get('status', 'unknown') for task in tasks))
         filter_status = st.selectbox("Filter by Status", status_options)
 
     with col2:
@@ -307,7 +307,7 @@ def display_task_analytics(tasks, employees):
 
     with col1:
         # Tasks by status
-        status_counts = pd.Series([task['status'] for task in tasks]).value_counts()
+        status_counts = pd.Series([task.get('status', 'unknown') for task in tasks]).value_counts()
         st.bar_chart(status_counts)
         st.caption("Tasks by Status")
 
@@ -321,7 +321,7 @@ def display_task_analytics(tasks, employees):
     st.subheader("👥 Employee Workload")
     employee_tasks = {}
     for task in tasks:
-        if task['status'] != 'completed':
+        if task.get('status') != 'completed':
             employee = task['assigned_to']
             if employee not in employee_tasks:
                 employee_tasks[employee] = 0

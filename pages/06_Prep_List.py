@@ -278,7 +278,7 @@ def display_prep_summary(prep_items):
         category = item['category']
         if category not in category_stats:
             category_stats[category] = {
-                'total': 0, 'completed': 0, 'in_progress': 0, 'pending': 0, 'behind': 0
+                'total': 0, 'completed': 0, 'in-progress': 0, 'pending': 0, 'behind': 0
             }
 
         category_stats[category]['total'] += 1

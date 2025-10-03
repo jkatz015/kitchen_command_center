@@ -5,7 +5,7 @@ Interactive whiteboard for kitchen notes and diagrams
 
 import streamlit as st
 from streamlit_drawable_canvas import st_canvas
-from datetime import datetime
+import datetime
 import json
 
 # Page configuration
@@ -59,7 +59,7 @@ def add_note(title, content, priority, author):
         'content': content,
         'priority': priority,
         'author': author,
-        'timestamp': datetime.now(),
+        'timestamp': datetime.datetime.now(),
         'category': 'general'
     }
     st.session_state.notes.append(note)
@@ -197,19 +197,19 @@ def display_kitchen_announcements():
             'title': 'VIP Table Alert',
             'content': 'Food critic expected around 8 PM - Table 12',
             'priority': 'high',
-            'timestamp': datetime.now() - timedelta(hours=2)
+            'timestamp': datetime.datetime.now() - datetime.timedelta(hours=2)
         },
         {
             'title': 'Dishwasher Maintenance',
             'content': 'Dishwasher maintenance at 3 PM - Use backup machine',
             'priority': 'medium',
-            'timestamp': datetime.now() - timedelta(hours=4)
+            'timestamp': datetime.datetime.now() - datetime.timedelta(hours=4)
         },
         {
             'title': 'Today\'s Special',
             'content': 'Pan-seared salmon with lemon butter sauce - $28',
             'priority': 'low',
-            'timestamp': datetime.now() - timedelta(hours=6)
+            'timestamp': datetime.datetime.now() - datetime.timedelta(hours=6)
         }
     ]
 
@@ -249,7 +249,7 @@ def main():
 
     # Footer
     st.markdown("---")
-    st.markdown(f"*Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*")
+    st.markdown(f"*Last updated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*")
 
 if __name__ == "__main__":
     main()
