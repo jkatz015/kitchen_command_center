@@ -22,20 +22,20 @@ export default function Display() {
     const unsubscribe = kitchenSimulator.subscribe((update) => {
       switch (update.type) {
         case 'order-add':
-          setOrderAdds(prev => [update.data, ...prev])
+          setOrderAdds((prev: OrderAdd[]) => [update.data, ...prev])
           break
         case 'prep-update':
-          setPrepItems(prev => prev.map(item =>
+          setPrepItems((prev: PrepItem[]) => prev.map((item: PrepItem) =>
             item.name === update.data.item
               ? { ...item, status: update.data.status }
               : item
           ))
           break
         case 'housekeeping-note':
-          setHousekeepingNotes(prev => [update.data, ...prev])
+          setHousekeepingNotes((prev: HousekeepingNote[]) => [update.data, ...prev])
           break
         case 'reservation-update':
-          setReservations(prev => prev.map(res =>
+          setReservations((prev: Reservation[]) => prev.map((res: Reservation) =>
             res.tableNumber === update.data.tableNumber
               ? { ...res, status: update.data.status }
               : res
@@ -95,7 +95,7 @@ export default function Display() {
                       <div className="mt-2">
                         <p className="text-sm text-gray-400">Special requests:</p>
                         <ul className="text-sm text-gray-300 list-disc list-inside">
-                          {reservation.specialRequests.map((request, index) => (
+                          {reservation.specialRequests.map((request: string, index: number) => (
                             <li key={index}>{request}</li>
                           ))}
                         </ul>
