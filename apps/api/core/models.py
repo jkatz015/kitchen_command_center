@@ -15,7 +15,7 @@ class Event(models.Model):
     start = models.DateTimeField()
     end = models.DateTimeField()
     location = models.CharField(max_length=255)
-    notes = models.TextField()
+    notes = models.TextField(blank=True, null=True)
 
     def __str__(self) -> str:
         return self.name
