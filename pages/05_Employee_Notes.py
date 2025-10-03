@@ -248,11 +248,11 @@ def display_task_filters(tasks, employees):
         filter_status = st.selectbox("Filter by Status", status_options)
 
     with col2:
-        employee_options = ["All"] + list(set(task['assigned_to'] for task in tasks))
+        employee_options = ["All"] + list(set(task.get('assigned_to', 'Unknown') for task in tasks))
         filter_employee = st.selectbox("Filter by Employee", employee_options)
 
     with col3:
-        category_options = ["All"] + list(set(task['category'] for task in tasks))
+        category_options = ["All"] + list(set(task.get('category', 'Unknown') for task in tasks))
         filter_category = st.selectbox("Filter by Category", category_options)
 
     return filter_status, filter_employee, filter_category

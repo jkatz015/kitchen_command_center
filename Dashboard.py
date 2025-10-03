@@ -33,7 +33,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown("## 🍽️ Kitchen Command Center")
-st.caption(f"Updated {datetime.now().strftime('%-I:%M %p')}")
+st.caption(f"Updated {datetime.now().strftime('%I:%M %p').lstrip('0')}")
 
 # Define your pages with real-time status indicators
 def get_page_status():

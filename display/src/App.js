@@ -1,15 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, ClipboardList, Users, Camera, Edit3, ShoppingCart, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
-import './App.css';
+import {
+  MdCalendarToday,
+  MdAssignment,
+  MdPeople,
+  MdVideocam,
+  MdEdit,
+  MdShoppingCart,
+  MdChevronLeft,
+  MdChevronRight,
+  MdRefresh
+} from 'react-icons/md';
 
-function App() {
+const KitchenDisplay = () => {
   const [activeView, setActiveView] = useState('dashboard');
   const [tasks, setTasks] = useState([]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(new Date());
 
-  // API Configuration - CHANGE THIS TO YOUR DJANGO API URL
+  // API Configuration
   const API_BASE_URL = 'http://localhost:8000/api';
 
   // Fetch tasks from Django API
@@ -68,6 +77,20 @@ function App() {
   };
 
   // Sample data for features not yet in API
+  const reservations = [
+    { time: '5:00 PM', name: 'Johnson', party: 4, notes: 'Birthday' },
+    { time: '6:30 PM', name: 'Smith', party: 2, notes: 'Anniversary' },
+    { time: '7:15 PM', name: 'Williams', party: 6, notes: 'Gluten-free' },
+    { time: '8:00 PM', name: 'Brown', party: 3, notes: null },
+  ];
+
+  const prepTasks = [
+    { id: 1, task: 'Dice 10 lbs onions', assigned: 'Mike', completed: true },
+    { id: 2, task: 'Prep salad greens', assigned: 'Sarah', completed: true },
+    { id: 3, task: 'Marinate chicken', assigned: 'Mike', completed: false },
+    { id: 4, task: 'Chop herbs', assigned: 'Sarah', completed: false },
+  ];
+
   const housekeepingNotes = [
     { task: 'Deep clean walk-in cooler', priority: 'high', due: 'Today' },
     { task: 'Check fire suppression system', priority: 'medium', due: 'Tomorrow' },
@@ -84,7 +107,11 @@ function App() {
   const ViewButton = ({ icon: Icon, label, view }) => (
     <button
       onClick={() => setActiveView(view)}
-      className={`view-button ${activeView === view ? 'active' : ''}`}
+      className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all ${
+        activeView === view
+          ? 'bg-gray-300 text-gray-900 border-2 border-gray-900'
+          : 'bg-transparent text-white hover:bg-gray-700'
+      }`}
     >
       <Icon size={20} />
       <span className="font-medium">{label}</span>
@@ -92,161 +119,148 @@ function App() {
   );
 
   const DashboardView = () => {
-    const todaysEvents = getTodaysEvents();
-    const incompleteTasks = tasks.filter(task => !task.completed);
-    const completedTasks = tasks.filter(task => task.completed);
+    const completedPrepTasks = prepTasks.filter(task => task.completed).length;
 
     return (
-      <div className="dashboard-grid">
-        {/* Reservations/Events */}
-        <div className="dashboard-card">
-          <div className="card-header">
-            <Calendar className="icon-blue" size={28} />
-            <h2>Today's Reservations</h2>
+      <div className="grid grid-cols-2 gap-6 h-full">
+        {/* Today's Reservations */}
+        <div className="bg-gray-800 rounded-xl p-6 overflow-auto">
+          <div className="flex items-center gap-3 mb-4">
+            <MdCalendarToday className="text-blue-400" size={28} />
+            <h2 className="text-2xl font-bold">Today's Reservations</h2>
           </div>
-          {loading ? (
-            <div className="loading-container">
-              <RefreshCw className="loading-spinner" size={32} />
-            </div>
-          ) : todaysEvents.length > 0 ? (
-            <div className="card-content">
-              {todaysEvents.map((event) => {
-                const startTime = new Date(event.start).toLocaleTimeString('en-US', {
-                  hour: 'numeric',
-                  minute: '2-digit',
-                  hour12: true
-                });
-                return (
-                  <div key={event.id} className="event-item">
-                    <div>
-                      <div className="event-time">{startTime}</div>
-                      <div className="event-name">{event.name}</div>
-                      {event.location && <div className="event-location">📍 {event.location}</div>}
-                      {event.notes && <div className="event-notes">⚠️ {event.notes}</div>}
-                    </div>
+          <div className="space-y-3">
+            {reservations.map((reservation, idx) => (
+              <div key={idx} className="bg-gray-700 rounded-lg p-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="text-xl font-semibold text-blue-300">{reservation.time}</div>
+                    <div className="text-lg">{reservation.name} - Party of {reservation.party}</div>
                   </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="empty-state">
-              No reservations scheduled for today
-            </div>
-          )}
+                  {reservation.notes && (
+                    <div className="text-yellow-400 text-sm bg-yellow-900 bg-opacity-30 px-2 py-1 rounded">
+                      ⚠️ {reservation.notes}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Tasks / Prep List */}
-        <div className="dashboard-card">
-          <div className="card-header">
-            <ClipboardList className="icon-green" size={28} />
-            <h2>Task List</h2>
-            <span className="task-counter">
-              {completedTasks.length}/{tasks.length} completed
+        {/* Prep List */}
+        <div className="bg-gray-800 rounded-xl p-6 overflow-auto">
+          <div className="flex items-center gap-3 mb-4">
+            <MdAssignment className="text-green-400" size={28} />
+            <h2 className="text-2xl font-bold">Prep List</h2>
+            <span className="ml-auto text-sm text-gray-400">
+              {completedPrepTasks}/{prepTasks.length} completed
             </span>
           </div>
-          {loading ? (
-            <div className="loading-container">
-              <RefreshCw className="loading-spinner" size={32} />
-            </div>
-          ) : tasks.length > 0 ? (
-            <div className="card-content">
-              {tasks.map((task) => (
-                <div key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
-                  <div className="task-content">
-                    <input
-                      type="checkbox"
-                      checked={task.completed}
-                      className="task-checkbox"
-                      readOnly
-                    />
-                    <div>
-                      <div className={`task-title ${task.completed ? 'strikethrough' : ''}`}>
-                        {task.title}
-                      </div>
-                      <div className="task-date">
-                        Created: {new Date(task.created_at).toLocaleDateString()}
-                      </div>
+          <div className="space-y-3">
+            {prepTasks.map((task) => (
+              <div key={task.id} className="bg-gray-700 rounded-lg p-4">
+                <div className="flex items-center gap-3">
+                  <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                    task.completed ? 'bg-blue-500 border-blue-500' : 'border-gray-400'
+                  }`}>
+                    {task.completed && <span className="text-white text-sm">✓</span>}
+                  </div>
+                  <div className="flex-1">
+                    <div className={`text-lg ${task.completed ? 'line-through text-gray-400' : ''}`}>
+                      {task.task}
+                    </div>
+                    <div className={`text-sm ${task.completed ? 'line-through text-gray-500' : 'text-gray-400'}`}>
+                      Assigned: {task.assigned}
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state">
-              No tasks available
-            </div>
-          )}
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Housekeeping Notes */}
-        <div className="dashboard-card">
-          <div className="card-header">
-            <Users className="icon-purple" size={28} />
-            <h2>Housekeeping</h2>
+        {/* Housekeeping */}
+        <div className="bg-gray-800 rounded-xl p-6 overflow-auto">
+          <div className="flex items-center gap-3 mb-4">
+            <MdPeople className="text-purple-400" size={28} />
+            <h2 className="text-2xl font-bold">Housekeeping</h2>
           </div>
-          <div className="card-content">
+          <div className="space-y-3">
             {housekeepingNotes.map((note, idx) => (
-              <div key={idx} className="housekeeping-item">
-                <div className="housekeeping-content">
-                  <div className="housekeeping-task">{note.task}</div>
-                  <div className="housekeeping-due">Due: {note.due}</div>
+              <div key={idx} className="bg-gray-700 rounded-lg p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="text-lg">{note.task}</div>
+                    <div className="text-sm text-gray-400 mt-1">Due: {note.due}</div>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    note.priority === 'high' ? 'bg-red-500 text-white' :
+                    note.priority === 'medium' ? 'bg-yellow-500 text-black' :
+                    'bg-green-500 text-white'
+                  }`}>
+                    {note.priority.toUpperCase()}
+                  </span>
                 </div>
-                <span className={`priority-badge priority-${note.priority}`}>
-                  {note.priority.toUpperCase()}
-                </span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Order Guide */}
-        <div className="dashboard-card">
-          <div className="card-header">
-            <ShoppingCart className="icon-orange" size={28} />
-            <h2>Order Guide</h2>
+        <div className="bg-gray-800 rounded-xl p-6 overflow-auto flex flex-col">
+          <div className="flex items-center gap-3 mb-4">
+            <MdShoppingCart className="text-orange-400" size={28} />
+            <h2 className="text-2xl font-bold">Order Guide</h2>
           </div>
-          <div className="card-content">
+          <div className="space-y-3 flex-1">
             {orderItems.map((item, idx) => (
-              <div key={idx} className="order-item">
-                {item}
+              <div key={idx} className="bg-gray-700 rounded-lg p-4">
+                <div className="text-lg">{item}</div>
               </div>
             ))}
           </div>
+          <button className="mt-4 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+            Add Item
+          </button>
         </div>
       </div>
     );
   };
 
   const CameraView = () => (
-    <div className="camera-container">
-      <div className="dashboard-card camera-card">
-        <div className="card-header">
-          <div className="camera-header-left">
-            <Camera className="icon-red" size={28} />
-            <h2>Dining Room - Live Feed</h2>
-            <span className="live-badge">LIVE</span>
+    <div className="h-full flex flex-col">
+      <div className="bg-gray-800 rounded-xl p-6 flex-1 flex flex-col">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+              <MdVideocam className="text-red-400" size={28} />
+            <h2 className="text-2xl font-bold">Dining Room - Live Feed</h2>
+            <span className="px-3 py-1 bg-red-500 text-white rounded-full text-sm font-semibold animate-pulse">
+              LIVE
+            </span>
           </div>
-          <div className="camera-controls">
-            <button className="camera-button">
-              <ChevronLeft size={24} />
+          <div className="flex gap-2">
+            <button className="bg-gray-700 hover:bg-gray-600 p-3 rounded-lg transition-colors">
+                <MdChevronLeft size={24} />
             </button>
-            <button className="camera-button">
-              <ChevronRight size={24} />
+            <button className="bg-gray-700 hover:bg-gray-600 p-3 rounded-lg transition-colors">
+              <MdChevronRight size={24} />
             </button>
           </div>
         </div>
-        <div className="camera-feed">
-          <div className="camera-placeholder">
-            <Camera size={80} className="camera-icon" />
-            <p className="camera-text">Camera Feed Placeholder</p>
-            <p className="camera-subtext">Connect IP camera or webcam feed here</p>
+        <div className="flex-1 bg-gray-900 rounded-lg flex items-center justify-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900"></div>
+          <div className="relative z-10 text-center">
+              <MdVideocam size={80} className="mx-auto mb-4 text-gray-600" />
+            <p className="text-xl text-gray-500">Camera Feed Placeholder</p>
+            <p className="text-sm text-gray-600 mt-2">Connect IP camera or webcam feed here</p>
           </div>
-          <div className="camera-timestamp">
-            {new Date().toLocaleTimeString()}
+          <div className="absolute top-4 right-4 bg-black bg-opacity-70 px-4 py-2 rounded-lg">
+            <div className="text-sm font-mono">{new Date().toLocaleTimeString()}</div>
           </div>
         </div>
-        <div className="camera-info">
-          <span className="status-indicator"></span>
+        <div className="mt-4 text-sm text-gray-400 flex items-center gap-2">
+          <span className="w-3 h-3 bg-green-500 rounded-full"></span>
           Swipe left/right on tablet to move camera view
         </div>
       </div>
@@ -254,23 +268,27 @@ function App() {
   );
 
   const WhiteboardView = () => (
-    <div className="whiteboard-container">
-      <div className="dashboard-card whiteboard-card">
-        <div className="card-header">
-          <div className="whiteboard-header-left">
-            <Edit3 className="icon-yellow" size={28} />
-            <h2>Whiteboard</h2>
+    <div className="h-full flex flex-col">
+      <div className="bg-gray-800 rounded-xl p-6 flex-1 flex flex-col">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+              <MdEdit className="text-yellow-400" size={28} />
+            <h2 className="text-2xl font-bold">Whiteboard</h2>
           </div>
-          <div className="whiteboard-controls">
-            <button className="whiteboard-button clear">Clear</button>
-            <button className="whiteboard-button save">Save</button>
+          <div className="flex gap-2">
+            <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors">
+              Clear
+            </button>
+            <button className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors">
+              Save
+            </button>
           </div>
         </div>
-        <div className="whiteboard-canvas">
-          <div className="whiteboard-placeholder">
-            <Edit3 size={60} className="whiteboard-icon" />
-            <p className="whiteboard-text">Drawing Canvas</p>
-            <p className="whiteboard-subtext">Use tablet pen to draw notes and diagrams</p>
+        <div className="flex-1 bg-white rounded-lg flex items-center justify-center">
+          <div className="text-center text-gray-400">
+              <MdEdit size={60} className="mx-auto mb-3 opacity-30" />
+            <p className="text-xl">Drawing Canvas</p>
+            <p className="text-sm mt-2">Use tablet pen to draw notes and diagrams</p>
           </div>
         </div>
       </div>
@@ -278,41 +296,38 @@ function App() {
   );
 
   return (
-    <div className="app-container">
+    <div className="w-full h-screen bg-gray-900 text-white p-6 flex flex-col">
       {/* Header */}
-      <div className="app-header">
-        <div className="header-left">
-          <h1 className="app-title">Kitchen Command Center</h1>
-          <p className="app-date">
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h1 className="text-4xl font-bold mb-2">Kitchen Command Center</h1>
+          <p className="text-xl text-gray-300">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
         </div>
-        <div className="header-right">
-          <div className="current-time">
+        <div className="text-right">
+          <p className="text-5xl font-bold mb-1">
             {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </div>
-          <div className="update-info">
-            <RefreshCw size={14} className={loading ? 'loading-spinner' : ''} />
-            Updated: {lastUpdate.toLocaleTimeString()}
-          </div>
+          </p>
+          <p className="text-lg text-gray-300">Service: Dinner</p>
         </div>
       </div>
 
       {/* Navigation */}
-      <div className="app-navigation">
-        <ViewButton icon={Calendar} label="Dashboard" view="dashboard" />
-        <ViewButton icon={Camera} label="Dining Room" view="camera" />
-        <ViewButton icon={Edit3} label="Whiteboard" view="whiteboard" />
+      <div className="flex gap-3 mb-6">
+          <ViewButton icon={MdCalendarToday} label="Dashboard" view="dashboard" />
+          <ViewButton icon={MdVideocam} label="Dining Room" view="camera" />
+          <ViewButton icon={MdEdit} label="Whiteboard" view="whiteboard" />
       </div>
 
       {/* Main Content */}
-      <div className="app-content">
+      <div className="flex-1 overflow-hidden">
         {activeView === 'dashboard' && <DashboardView />}
         {activeView === 'camera' && <CameraView />}
         {activeView === 'whiteboard' && <WhiteboardView />}
       </div>
     </div>
   );
-}
+};
 
-export default App;
+export default KitchenDisplay;
