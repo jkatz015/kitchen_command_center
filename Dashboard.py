@@ -33,13 +33,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown("## 🍽️ Kitchen Command Center")
-st.caption(f"Updated {datetime.now().strftime('%-I:%M %p')}")
+st.caption(f"Updated {datetime.now().strftime('%I:%M %p').lstrip('0')}")
 
 # Define your pages with real-time status indicators
 def get_page_status():
     """Get real-time status for each page"""
     return {
-        "pages/01_Inventory_Dashboard.py": {"status": "🟢", "count": "12 items"},
+        "pages/01_Inventory.py": {"status": "🟢", "count": "12 items"},
         "pages/02_Production_Board.py": {"status": "🟡", "count": "3 active"},
         "pages/03_Notes_Whiteboard.py": {"status": "🟢", "count": "5 notes"},
         "pages/04_Reservation_Display.py": {"status": "🟢", "count": "8 tables"},
@@ -49,7 +49,7 @@ def get_page_status():
     }
 
 PAGES = [
-    {"label": "Inventory Dashboard", "path": "pages/01_Inventory_Dashboard.py", "icon": "📦",
+    {"label": "Inventory", "path": "pages/01_Inventory.py", "icon": "📦",
      "desc": "Par, on-hand, and order guide export."},
     {"label": "Production Board", "path": "pages/02_Production_Board.py", "icon": "👩‍🍳",
      "desc": "Batch list, stations, owners, completion."},

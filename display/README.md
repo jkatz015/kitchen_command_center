@@ -41,8 +41,8 @@ In your Django `settings.py`:
 
 ```python
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:8501",
+    "http://localhost:3000",  # React app
+    "http://localhost:8501",  # Streamlit app
 ]
 ```
 
